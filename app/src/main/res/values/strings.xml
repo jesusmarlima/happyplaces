@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">HappyPlaces</string>
+    <string name="edit_text_hint_title">title</string>
+    <string name="edit_text_hint_description">description</string>
+    <string name="edit_text_hint_date">date</string>
+    <string name="edit_text_hint_location">location</string>
+    <string name="text_add_image">ADD IMAGE</string>
+    <string name="btn_text_save">save</string>
+</resources>
