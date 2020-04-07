@@ -8,11 +8,15 @@
     <color name="secondary_text_color">#9AA2AF</color>
     <color name="white_color">#FFFFFF</color>
     <color name="button_background_color">#22272c</color>
-<!--
-#22272c
-#2a4158
-#597387
-#8c9ea3
-#958a56
--->
+    <color name="circular_image_border_color">#FFFFFF</color>
+
+    <color name="detail_screen_description_text_color">#757575</color>
+
+    <!--
+    #22272c
+    #2a4158
+    #597387
+    #8c9ea3
+    #958a56
+    -->
 </resources>

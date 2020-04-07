@@ -6,4 +6,8 @@
     <string name="edit_text_hint_location">location</string>
     <string name="text_add_image">ADD IMAGE</string>
     <string name="btn_text_save">save</string>
+    <string name="note_text_no_happy_places_found_yet">No happy places found. Please add one.</string>
+    <string name="image_content_description">happy place</string>
+    <string name="add_place_select_current_location_text">SELECT CURRENT LOCATION</string>
+
 </resources>
