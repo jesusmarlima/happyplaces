@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.happyplaces.adapters.HappyPlacesAdapter
 import com.happyplaces.utils.SwipeToDeleteCallback
 import com.jesusmar.happyplaces.R
+import com.jesusmar.happyplaces.database.AppDatabase
 import com.jesusmar.happyplaces.database.DatabaseHandler
 import com.jesusmar.happyplaces.models.HappyPlaceModel
+import com.jesusmar.happyplaces.util.DataTask
 import kotlinx.android.synthetic.main.activity_main.*
 import pl.kitek.rvswipetodelete.SwipeToEditCallback
+import java.util.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,24 +40,37 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getHappyPlaceFormLocalDatabase() {
-        val handler = DatabaseHandler(this)
-        val happyPlaceList = handler.getHappyPlaceList()
 
-        if (happyPlaceList.size > 0) {
-            rv_happy_place_list.visibility = View.VISIBLE
-            tv_no_records_available.visibility = View.GONE
-            setupHappyPlaceRecycleView(happyPlaceList)
-        } else {
-            rv_happy_place_list.visibility = View.GONE
-            tv_no_records_available.visibility = View.VISIBLE
-        }
+        val dataTask = DataTask()
+
+        dataTask.setDataListener(object: DataTask.DataTaskListener {
+            override fun execute(handler: AppDatabase): Any? {
+                return handler.happyPlacesModelDao().getAll()
+            }
+
+            override fun onSuccess(result: Any?) {
+                rv_happy_place_list.visibility = View.VISIBLE
+                tv_no_records_available.visibility = View.GONE
+                if (result is List<*>) {
+                    setupHappyPlaceRecycleView(result.filterIsInstance<HappyPlaceModel>())
+                }
+            }
+
+            override fun onFail() {
+                rv_happy_place_list.visibility = View.GONE
+                tv_no_records_available.visibility = View.VISIBLE
+            }
+
+        })
+
+        dataTask.execute(this)
     }
 
 
-    private fun setupHappyPlaceRecycleView(happyPlaceList: ArrayList<HappyPlaceModel>){
+    private fun setupHappyPlaceRecycleView(happyPlaceList: List<HappyPlaceModel>){
         rv_happy_place_list.layoutManager = LinearLayoutManager(this)
         rv_happy_place_list.setHasFixedSize(true)
-        val placesAdapter = HappyPlacesAdapter(this, happyPlaceList)
+        val placesAdapter = HappyPlacesAdapter(this, happyPlaceList as ArrayList<HappyPlaceModel> )
         rv_happy_place_list.adapter = placesAdapter
 
         placesAdapter.setOnClickListener(object :
