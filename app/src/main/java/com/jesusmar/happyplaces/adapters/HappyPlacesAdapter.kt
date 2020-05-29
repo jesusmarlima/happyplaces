@@ -7,12 +7,15 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.jesusmar.happyplaces.R
 import com.jesusmar.happyplaces.activities.AddHappyPlaceActivity
 import com.jesusmar.happyplaces.activities.MainActivity
+import com.jesusmar.happyplaces.database.AppDatabase
 import com.jesusmar.happyplaces.database.DatabaseHandler
 import com.jesusmar.happyplaces.models.HappyPlaceModel
+import com.jesusmar.happyplaces.util.DataTask
 import kotlinx.android.synthetic.main.item_happy_place.view.*
 
 // TODO (Step 6: Creating an adapter class for binding it to the recyclerview in the new package which is adapters.)
@@ -92,13 +95,30 @@ open class HappyPlacesAdapter(
     }
 
     fun removeAt(adapterPosition: Int) {
-        val dbHandle = DatabaseHandler(context)
-        val isDeleted = dbHandle.deleteHaapyPlace(list[adapterPosition])
-        if (isDeleted!! > 0) {
-            list.removeAt(adapterPosition)
-            //reload
-            notifyItemRemoved(adapterPosition)
-        }
+        deleteHappyPlaceTask(adapterPosition)
+    }
+
+    private fun deleteHappyPlaceTask(adapterPosition: Int) {
+        val deleteTask = DataTask()
+
+        deleteTask.setDataListener(object: DataTask.DataTaskListener{
+            override fun execute(handler: AppDatabase): Any? {
+                return handler.happyPlacesModelDao().delete(list[adapterPosition])
+            }
+
+            override fun onSuccess(result: Any?) {
+                if ((result as Int) > 0) {
+                    list.removeAt(adapterPosition)
+                    notifyItemRemoved(adapterPosition)
+                }
+            }
+
+            override fun onFail() {
+                Toast.makeText(context,"Error deleting data", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+        deleteTask.execute(context)
     }
 
     fun getElementAt(adapterPosition: Int) : HappyPlaceModel {

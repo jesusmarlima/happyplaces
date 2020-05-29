@@ -2,17 +2,26 @@ package com.jesusmar.happyplaces.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.io.Serializable
+import androidx.annotation.NonNull
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import org.jetbrains.annotations.NotNull
 
+
+@Entity(tableName = "HappyPlacesTable")
 data class HappyPlaceModel (
-    val id: Int,
-    val title: String?,
-    val image: String?,
-    val description: String?,
-    val date: String?,
-    val location: String?,
-    val latitude: Double,
-    val longitude: Double
+
+    @PrimaryKey(autoGenerate = true) val _id: Int,
+    @ColumnInfo(name = "title" ) val title: String?,
+    @ColumnInfo(name = "image") val image: String?,
+    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "date") val date: String?,
+    @ColumnInfo(name = "location") val location: String?,
+    @ColumnInfo(name = "latitude" ) val latitude: String?,
+    @ColumnInfo(name = "longitude") val longitude: String?,
+    @ColumnInfo(name = "size") val size: String?
+
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
@@ -21,20 +30,22 @@ data class HappyPlaceModel (
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
-        parcel.readDouble(),
-        parcel.readDouble()
+        parcel.readString(),
+        parcel.readString(),
+        parcel.readString()
     ) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
+        parcel.writeInt(_id)
         parcel.writeString(title)
         parcel.writeString(image)
         parcel.writeString(description)
         parcel.writeString(date)
         parcel.writeString(location)
-        parcel.writeDouble(latitude)
-        parcel.writeDouble(longitude)
+        parcel.writeString(latitude!!)
+        parcel.writeString(longitude!!)
+        parcel.writeString(size)
     }
 
     override fun describeContents(): Int {

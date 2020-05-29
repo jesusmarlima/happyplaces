@@ -38,7 +38,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(googleMap: GoogleMap?) {
-        val pos = LatLng(happyPlace!!.latitude,happyPlace!!.longitude)
+        val pos = LatLng(happyPlace!!.latitude!!.toDouble() ,happyPlace!!.longitude!!.toDouble())
         googleMap!!.addMarker(
             MarkerOptions().position(pos).title(happyPlace!!.location))
         val newLateLongZoon = CameraUpdateFactory.newLatLngZoom(pos, 10f)

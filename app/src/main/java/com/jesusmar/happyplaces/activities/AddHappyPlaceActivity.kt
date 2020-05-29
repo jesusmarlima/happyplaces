@@ -25,8 +25,10 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.jesusmar.happyplaces.R
+import com.jesusmar.happyplaces.database.AppDatabase
 import com.jesusmar.happyplaces.database.DatabaseHandler
 import com.jesusmar.happyplaces.models.HappyPlaceModel
+import com.jesusmar.happyplaces.util.DataTask
 import com.jesusmar.happyplaces.util.GetAddresFromLatLng
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -36,6 +38,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import kotlinx.android.synthetic.main.activity_add_happy_place.*
 import kotlinx.android.synthetic.main.activity_add_happy_place.iv_place_image
 import kotlinx.android.synthetic.main.activity_happy_place_details.*
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -47,9 +50,11 @@ import java.util.*
 class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private var saveImageToInternalStorage: Uri? = null
-    private var mLongitude: Double = 0.0
-    private var mLatidute: Double = 0.0
+    private var mLongitude: Double? = 0.0
+    private var mLatidute: Double? = 0.0
     private lateinit var mFusedLocationProviderClient: FusedLocationProviderClient
+
+
 
     private var mHappyplace: HappyPlaceModel? = null
 
@@ -97,7 +102,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun requestNewLocationData() {
-        var mLocationRequest = LocationRequest()
+        val mLocationRequest = LocationRequest()
         mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         mLocationRequest.interval = 1000
         mLocationRequest.numUpdates = 1
@@ -112,8 +117,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
             mLatidute = locationResult!!.lastLocation.latitude
-            mLongitude = locationResult!!.lastLocation.longitude
-            var addressTask = GetAddresFromLatLng(this@AddHappyPlaceActivity, mLatidute, mLongitude)
+            mLongitude = locationResult.lastLocation.longitude
+            val addressTask = GetAddresFromLatLng(this@AddHappyPlaceActivity, mLatidute!!, mLongitude!!)
             addressTask.setAddressListener(object : GetAddresFromLatLng.AddressListener {
                 override fun onAddressFound(address: String) {
                     et_location.setText(address)
@@ -238,26 +243,21 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                 ).show()
             }
             else -> {
-                val dbHandler = DatabaseHandler(this)
-
                 if (mHappyplace != null) {
 
                     val happyPlaceModel = HappyPlaceModel(
-                        mHappyplace!!.id,
+                        mHappyplace!!._id,
                         et_title.text.toString(),
                         saveImageToInternalStorage.toString(),
                         et_description.text.toString(),
                         et_date.text.toString(),
                         et_location.text.toString(),
-                        mLatidute,
-                        mLongitude
+                        mLatidute.toString(),
+                        mLongitude.toString(),
+                        et_size.text.toString()
                     )
 
-                    val addHappyPlaceResult: Int = dbHandler.updateHappyPlace(happyPlaceModel)
-                    if (addHappyPlaceResult > 0) {
-                        setResult(Activity.RESULT_OK)
-                        finish()
-                    }
+                    updateHappyPlace(happyPlaceModel)
                 } else {
                     val happyPlaceModel = HappyPlaceModel(
                         0,
@@ -266,18 +266,63 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                         et_description.text.toString(),
                         et_date.text.toString(),
                         et_location.text.toString(),
-                        mLatidute,
-                        mLongitude
+                        mLatidute.toString(),
+                        mLongitude.toString(),
+                        et_size.text.toString()
                     )
 
-                    val addHappyPlaceResult: Long = dbHandler.addHappyPlace(happyPlaceModel)
-                    if (addHappyPlaceResult > 0) {
-                        setResult(Activity.RESULT_OK)
-                        finish()
-                    }
+                    addHappyPlace(happyPlaceModel)
                 }
             }
         }
+    }
+
+    private fun updateHappyPlace(happyPlaceModel: HappyPlaceModel) {
+        val dataTask = DataTask()
+        dataTask.setDataListener(object: DataTask.DataTaskListener{
+            override fun execute(handler: AppDatabase): Any? {
+                return handler.happyPlacesModelDao().updateHappyPlace(happyPlaceModel)
+            }
+
+            override fun onSuccess(result: Any?) {
+                if ((result as Int) > 0) {
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }
+            }
+
+            override fun onFail() {
+                Toast.makeText(this@AddHappyPlaceActivity,"Error updating happy place", Toast.LENGTH_SHORT  ).show()
+            }
+
+        })
+        dataTask.execute(this)
+    }
+
+
+    fun addHappyPlace(happyPlaceModel: HappyPlaceModel) {
+
+        val dataTask = DataTask()
+
+        dataTask.setDataListener(object: DataTask.DataTaskListener {
+            override fun execute(handler: AppDatabase): Any? {
+                return handler.happyPlacesModelDao().insertAll(happyPlaceModel)
+            }
+
+            override fun onSuccess(result: Any?) {
+                if ((result as List<*>).size > 0) {
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }
+            }
+
+            override fun onFail() {
+                Toast.makeText(this@AddHappyPlaceActivity,"Error saving happy place", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+
+        dataTask.execute(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -303,7 +348,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
     private fun setImageFromCamera(data: Intent?) {
         if (data != null) {
             try {
-                val thumbnail: Bitmap = data!!.extras!!.get("data") as Bitmap
+                val thumbnail: Bitmap = data.extras!!.get("data") as Bitmap
                 iv_place_image.setImageBitmap(thumbnail)
                 saveImageToInternalStorage = saveImageToInternalStorage(thumbnail)
             } catch (e: IOException) {
@@ -319,7 +364,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun setImageFromGallery(data: Intent?) {
         if (data != null) {
-            val contentURI = data!!.data
+            val contentURI = data.data
             try {
                 val seletedImageBitmap =
                     MediaStore.Images.Media.getBitmap(this.contentResolver, contentURI)
@@ -338,7 +383,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun takePhotoFromCamera() {
         Dexter.withActivity(this).withPermissions(
-            android.Manifest.permission.CAMERA
+            Manifest.permission.CAMERA
         )
             .withListener(object : MultiplePermissionsListener {
                 override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
@@ -362,8 +407,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun choosePhotoFromGalery() {
         Dexter.withActivity(this).withPermissions(
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
             .withListener(object : MultiplePermissionsListener {
                 override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
@@ -416,13 +461,14 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             et_description.setText(mHappyplace!!.description)
             et_date.setText(mHappyplace!!.date)
             et_location.setText(mHappyplace!!.location)
+            et_size.setText(mHappyplace!!.size)
 
             saveImageToInternalStorage = Uri.parse(mHappyplace!!.image)
 
             iv_place_image.setImageURI(saveImageToInternalStorage)
 
-            mLatidute = mHappyplace!!.latitude
-            mLongitude = mHappyplace!!.longitude
+            mLatidute = mHappyplace!!.latitude!!.toDouble()
+            mLongitude = mHappyplace!!.longitude!!.toDouble()
         }
 
         val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
