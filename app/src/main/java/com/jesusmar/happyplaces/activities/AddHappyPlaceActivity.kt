@@ -253,7 +253,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                         et_date.text.toString(),
                         et_location.text.toString(),
                         mLatidute.toString(),
-                        mLongitude.toString()
+                        mLongitude.toString(),
+                        et_size.text.toString()
                     )
 
                     updateHappyPlace(happyPlaceModel)
@@ -266,7 +267,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                         et_date.text.toString(),
                         et_location.text.toString(),
                         mLatidute.toString(),
-                        mLongitude.toString()
+                        mLongitude.toString(),
+                        et_size.text.toString()
                     )
 
                     addHappyPlace(happyPlaceModel)
@@ -459,6 +461,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             et_description.setText(mHappyplace!!.description)
             et_date.setText(mHappyplace!!.date)
             et_location.setText(mHappyplace!!.location)
+            et_size.setText(mHappyplace!!.size)
 
             saveImageToInternalStorage = Uri.parse(mHappyplace!!.image)
 

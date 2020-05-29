@@ -46,7 +46,7 @@ class DataBaseLayerTest {
 
     @Test
     fun writeHappyPlaceReadInList() {
-        val happyPlace = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342")
+        val happyPlace = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342","1")
         happyPlaceModelDao.insertAll(happyPlace)
         val byName = happyPlaceModelDao.findByName ("23123","wqe23")
         assertThat(byName, CoreMatchers.equalTo(happyPlace))
@@ -55,7 +55,7 @@ class DataBaseLayerTest {
 
     @Test
     fun deleteHappyPlaceTest() {
-        val happyPlace = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342")
+        val happyPlace = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342","1")
         happyPlaceModelDao.insertAll(happyPlace)
         val byName = happyPlaceModelDao.findByName ("23123","wqe23")
         happyPlaceModelDao.delete(byName)
@@ -64,7 +64,7 @@ class DataBaseLayerTest {
 
     @Test
     fun updateHappyPlaceTest() {
-        val happyPlace = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342")
+        val happyPlace = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342","1")
         happyPlaceModelDao.insertAll(happyPlace)
 
         val byName = happyPlaceModelDao.findByName ("23123","wqe23").copy(title = "hahaha")
@@ -79,10 +79,10 @@ class DataBaseLayerTest {
 
     @Test
     fun getAllHappyPlacesTest() {
-        val happyPlace1 = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342")
-        val happyPlace2 = HappyPlaceModel(2,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342")
-        val happyPlace3 = HappyPlaceModel(3,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342")
-        val happyPlace4 = HappyPlaceModel(4,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342")
+        val happyPlace1 = HappyPlaceModel(1,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342","1")
+        val happyPlace2 = HappyPlaceModel(2,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342","1")
+        val happyPlace3 = HappyPlaceModel(3,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342","1")
+        val happyPlace4 = HappyPlaceModel(4,"23123","3231","wqe23","342342","dfsdfsdf","123123","e234342","1")
 
         happyPlaceModelDao.insertAll(happyPlace1,happyPlace2,happyPlace3,happyPlace4)
 

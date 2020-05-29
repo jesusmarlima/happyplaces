@@ -19,11 +19,13 @@ data class HappyPlaceModel (
     @ColumnInfo(name = "date") val date: String?,
     @ColumnInfo(name = "location") val location: String?,
     @ColumnInfo(name = "latitude" ) val latitude: String?,
-    @ColumnInfo(name = "longitude") val longitude: String?
+    @ColumnInfo(name = "longitude") val longitude: String?,
+    @ColumnInfo(name = "size") val size: String?
 
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(),
+        parcel.readString(),
         parcel.readString(),
         parcel.readString(),
         parcel.readString(),
@@ -43,6 +45,7 @@ data class HappyPlaceModel (
         parcel.writeString(location)
         parcel.writeString(latitude!!)
         parcel.writeString(longitude!!)
+        parcel.writeString(size)
     }
 
     override fun describeContents(): Int {

@@ -12,7 +12,6 @@ import com.happyplaces.adapters.HappyPlacesAdapter
 import com.happyplaces.utils.SwipeToDeleteCallback
 import com.jesusmar.happyplaces.R
 import com.jesusmar.happyplaces.database.AppDatabase
-import com.jesusmar.happyplaces.database.DatabaseHandler
 import com.jesusmar.happyplaces.models.HappyPlaceModel
 import com.jesusmar.happyplaces.util.DataTask
 import kotlinx.android.synthetic.main.activity_main.*
